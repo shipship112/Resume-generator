@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>简历工坊 | Resume Studio</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark">R</div>
+          <div>简历工坊<small>RESUME STUDIO</small></div>
+        </div>
+        <div class="top-actions">
+          <span class="status" id="saveStatus">尚未保存</span
+          ><button class="btn btn-ghost" id="editToggle">编辑</button
+          ><button class="btn btn-primary" id="exportBtn">导出 PDF</button>
+        </div>
+      </header>
+      <main class="workspace">
+        <section class="editor-panel" id="editorPanel">
+          <div class="editor-intro">
+            <div class="eyebrow">Your professional story</div>
+            <h1>把经历，排成一份好简历。</h1>
+            <p>填写左侧内容，右侧会实时生成适合投递的 A4 简历。</p>
+          </div>
+          <div id="editorRoot"></div>
+        </section>
+        <section class="preview-column">
+          <div class="preview-toolbar">
+            <strong>简历预览</strong><span>A4 · 实时预览</span>
+          </div>
+          <div class="resume-frame">
+            <article class="resume" id="resume"></article>
+          </div>
+        </section>
+      </main>
+      <div class="toast" id="toast"></div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

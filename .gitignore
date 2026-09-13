@@ -1,0 +1,14 @@
+# Local development instructions and visual references
+prompt.md
+参考样式版.html
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Temporary and generated files
+*.log
+*.tmp
+*.temp
+*.bak
