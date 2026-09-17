@@ -94,6 +94,12 @@ const defaultData = {
 };
 let data = loadData();
 let editing = true;
+const paperSizes = {
+  a4: { label: "A4", width: 210, height: 297, pdf: "a4" },
+  letter: { label: "Letter", width: 216, height: 279, pdf: "letter" },
+  legal: { label: "Legal", width: 216, height: 356, pdf: "legal" },
+};
+let exportSettings = loadExportSettings();
 const $ = (s) => document.querySelector(s);
 const esc = (v) =>
   String(v ?? "").replace(
@@ -155,6 +161,20 @@ function loadData() {
       }));
     });
   }
+}
+function loadExportSettings() {
+  try {
+    return {
+      paper: "a4",
+      onePage: true,
+      ...JSON.parse(localStorage.getItem("resume-studio-export")),
+    };
+  } catch {
+    return { paper: "a4", onePage: true };
+  }
+}
+function saveExportSettings() {
+  localStorage.setItem("resume-studio-export", JSON.stringify(exportSettings));
 }
 function saveData(message = "已保存到本地") {
   localStorage.setItem("resume-studio-data", JSON.stringify(data));
@@ -253,11 +273,7 @@ function renderEditor() {
     "获奖记录",
     data.honors,
     (item) =>
-      `<div class="field-grid">${input("奖项名称", "title", item.title)}${input(
-        "时间 / 级别",
-        "detail",
-        item.detail
-      )}</div>`,
+      `<div class="field-grid">${input("奖项名称", "title", item.title)}</div>`,
     "honor"
   );
   html += sectionEditor(
@@ -550,7 +566,7 @@ function blankItem(key) {
         },
       ],
     };
-  if (key === "honors") return { title: "新奖项", detail: "级别 · 年份" };
+  if (key === "honors") return { title: "新奖项" };
   return { title: "新技能", detail: "补充技能描述。" };
 }
 function renderPreview() {
@@ -585,18 +601,16 @@ function renderPreview() {
   if (data.projects) html += projectSectionHtml(data.projects);
   if (data.honors)
     html += `<section class="resume-section"><h2 class="resume-section-title">荣誉奖项</h2><ul class="narrative">${data.honors
-      .map(
-        (x) =>
-          `<li><span class="label">${esc(x.title)}：</span>${esc(
-            x.detail
-          )}</li>`
-      )
+      .map((x) => `<li><span class="label">${esc(x.title)}</span></li>`)
       .join("")}</ul></section>`;
   if (data.skills)
     html += `<section class="resume-section"><h2 class="resume-section-title">专业技能</h2><ul class="skills">${data.skills
       .map((x) => `<li><strong>${esc(x.title)}：</strong>${esc(x.detail)}</li>`)
       .join("")}</ul></section>`;
+  $("#resume").className = `resume paper-${exportSettings.paper}`;
   $("#resume").innerHTML = html;
+  $("#paperSize").value = exportSettings.paper;
+  $("#fitOnePage").checked = exportSettings.onePage;
 }
 function educationHtml(x) {
   return `<div class="education"><img class="school-logo" src="${
@@ -725,10 +739,72 @@ $("#editToggle").onclick = () => {
 $("#editorRoot").addEventListener("click", (e) => {
   if (e.target.matches("[data-save]")) saveData();
 });
+$("#paperSize").addEventListener("change", (event) => {
+  exportSettings.paper = event.target.value;
+  saveExportSettings();
+  renderPreview();
+});
+$("#fitOnePage").addEventListener("change", (event) => {
+  exportSettings.onePage = event.target.checked;
+  saveExportSettings();
+});
+async function exportOnePage(element, paper) {
+  if (!window.html2pdf) return false;
+  element.classList.add("export-compact");
+  try {
+    const worker = html2pdf()
+      .set({
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#ffffff",
+          logging: false,
+        },
+        jsPDF: { unit: "mm", format: paper.pdf, orientation: "portrait" },
+      })
+      .from(element)
+      .toCanvas();
+    const canvas = await worker.get("canvas");
+    const pdfWorker = worker.toPdf();
+    const workerPdf = await pdfWorker.get("pdf");
+    if (!workerPdf?.internal || !workerPdf.deletePage || !workerPdf.addPage)
+      return false;
+    while (workerPdf.getNumberOfPages() > 0) {
+      workerPdf.deletePage(workerPdf.getNumberOfPages());
+    }
+    workerPdf.addPage(paper.pdf, "portrait");
+    const pageWidth = workerPdf.internal.pageSize.getWidth();
+    const pageHeight = workerPdf.internal.pageSize.getHeight();
+    const imageRatio = canvas.width / canvas.height;
+    const pageRatio = pageWidth / pageHeight;
+    const renderWidth =
+      imageRatio > pageRatio ? pageWidth : pageHeight * imageRatio;
+    const renderHeight = renderWidth / imageRatio;
+    const left = (pageWidth - renderWidth) / 2;
+    const top = (pageHeight - renderHeight) / 2;
+    workerPdf.addImage(
+      canvas.toDataURL("image/jpeg", 0.98),
+      "JPEG",
+      left,
+      top,
+      renderWidth,
+      renderHeight
+    );
+    workerPdf.save(`${data.profile.name || "我的简历"}_简历.pdf`);
+    return true;
+  } finally {
+    element.classList.remove("export-compact");
+  }
+}
 $("#exportBtn").onclick = async () => {
   saveData("正在准备 PDF");
   const element = $("#resume");
   if (window.html2pdf) {
+    const paper = paperSizes[exportSettings.paper] || paperSizes.a4;
+    if (exportSettings.onePage && (await exportOnePage(element, paper))) {
+      showToast("一页 PDF 已下载");
+      return;
+    }
     await html2pdf()
       .set({
         margin: 0,
@@ -739,7 +815,7 @@ $("#exportBtn").onclick = async () => {
           useCORS: true,
           backgroundColor: "#ffffff",
         },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        jsPDF: { unit: "mm", format: paper.pdf, orientation: "portrait" },
       })
       .from(element)
       .save();

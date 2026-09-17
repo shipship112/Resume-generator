@@ -30,7 +30,22 @@
         </section>
         <section class="preview-column">
           <div class="preview-toolbar">
-            <strong>简历预览</strong><span>A4 · 实时预览</span>
+            <strong>简历预览</strong>
+            <div class="preview-settings">
+              <label
+                >纸张
+                <select id="paperSize">
+                  <option value="a4">A4</option>
+                  <option value="letter">Letter</option>
+                  <option value="legal">Legal</option>
+                </select></label
+              >
+              <label class="fit-toggle"
+                ><input id="fitOnePage" type="checkbox" checked />
+                一页适配</label
+              >
+              <span>实时预览</span>
+            </div>
           </div>
           <div class="resume-frame">
             <article class="resume" id="resume"></article>

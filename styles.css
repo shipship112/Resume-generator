@@ -309,6 +309,29 @@ button {
   color: var(--ink);
   font-size: 14px;
 }
+.preview-settings {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.preview-settings label,
+.fit-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.preview-settings select {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 4px 7px;
+  color: var(--body);
+  background: #fff;
+}
+.fit-toggle input {
+  accent-color: var(--blue);
+}
 .resume-frame {
   display: flex;
   justify-content: center;
@@ -322,6 +345,79 @@ button {
   box-shadow: var(--shadow);
   color: var(--body);
   font-variant-ligatures: none;
+}
+.resume.paper-letter {
+  width: 216mm;
+  min-height: 279mm;
+}
+.resume.paper-legal {
+  width: 216mm;
+  min-height: 356mm;
+}
+.resume.export-compact {
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 6mm 8mm 5mm;
+}
+.resume.export-compact .resume-header {
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.resume.export-compact .resume-name {
+  font-size: 25px;
+}
+.resume.export-compact .resume-contact {
+  gap: 1px 12px;
+  margin-top: 3px;
+  font-size: 11.5px;
+}
+.resume.export-compact .resume-headline {
+  margin-top: 2px;
+  font-size: 11.8px;
+}
+.resume.export-compact .resume-avatar {
+  width: 60px;
+  height: 76px;
+}
+.resume.export-compact .resume-section {
+  margin-top: 4px;
+}
+.resume.export-compact .resume-section-title {
+  font-size: 17px;
+  padding-bottom: 2px;
+  margin-bottom: 4px;
+}
+.resume.export-compact .employer {
+  margin-top: 4px;
+}
+.resume.export-compact .employer-band {
+  min-height: 27px;
+  padding: 3px 6px;
+  gap: 6px;
+}
+.resume.export-compact .company-logo {
+  width: 24px;
+  height: 24px;
+}
+.resume.export-compact .employer-summary {
+  margin-top: 3px;
+  font-size: 11px;
+  line-height: 1.35;
+}
+.resume.export-compact .project {
+  margin-top: 5px;
+}
+.resume.export-compact .narrative {
+  gap: 1px;
+  margin-top: 3px;
+}
+.resume.export-compact .narrative > li,
+.resume.export-compact .skills li {
+  font-size: 11.2px;
+  line-height: 1.34;
+}
+.resume.export-compact .skills {
+  gap: 4px 14px;
 }
 .resume-header {
   display: grid;
